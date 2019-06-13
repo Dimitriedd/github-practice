@@ -1,0 +1,29 @@
+.on{
+    background-color: yellow;
+    height: 100px;
+    width: 100px;
+    border: 2px solid black;
+}
+.off{
+    height: 100px;
+    width: 100px;
+    background-color: white;
+    border: 2px solid black;
+}
+.Bulb{
+    height: 100px;
+    width: 100px;
+}
+
+.imageOn {
+        height: 100px;
+        width: 100px;
+        transform: rotate(180deg);
+        background-color: green;
+}
+
+.imageOff {
+        height: 100px;
+        width: 100px;
+        background-color: red;
+}
