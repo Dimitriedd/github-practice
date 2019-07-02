@@ -1,0 +1,138 @@
+WITH
+	country_off_lang AS
+   	(SELECT
+     cla.countrycode, count(cla.isofficial) AS off_lang
+     FROM
+     countrylanguage cla
+     WHERE
+     cla.isofficial = true
+     GROUP BY
+     cla.countrycode
+    )
+
+
+SELECT
+	c.name,
+	cl.off_lang
+FROM
+	country c JOIN country_off_lang cl ON c.code = cl.countrycode
+ORDER BY
+	cl.off_lang DESC
+
+
+
+WITH
+	largest_countries AS
+    (SELECT
+     name,
+     surfacearea,
+     code
+     FROM
+     country
+     WHERE
+     code != 'ATA'
+     ORDER BY
+     surfacearea DESC
+     LIMIT 10
+    )
+SELECT
+c.name,
+cl.language
+
+FROM
+largest_countries c JOIN countrylanguage cl ON c.code = cl.countrycode
+ORDER BY
+c.surfacearea DESC
+
+
+
+
+WITH
+	poorest_countries AS
+    (SELECT
+     name,
+     gnp/population AS gnpc,
+     code
+     FROM
+     country
+     WHERE
+     population != 0
+	 AND
+     gnp > 0
+     ORDER BY
+     gnpc ASC
+     LIMIT 20
+    ),
+	country_lang_sort AS
+(SELECT DISTINCT
+c.name,
+cl.language,
+c.gnpc
+FROM
+poorest_countries c JOIN countrylanguage cl ON c.code = cl.countrycode
+ORDER BY
+gnpc)
+SELECT
+name,
+language
+FROM
+country_lang_sort
+
+
+
+
+
+SELECT DISTINCT c.name AS off_name,
+cl.isofficial
+FROM country c LEFT JOIN countrylanguage cl ON c.code = cl.countrycode
+WHERE c.name NOT IN (SELECT DISTINCT c.name off_name
+                     FROM country c JOIN countrylanguage cl ON c.code = cl.countrycode
+                     WHERE cl.isofficial = 'true') AND cl.isofficial = 'false'
+ORDER BY c.name
+
+
+
+
+
+WITH
+per_country AS
+(
+SELECT
+cl.percentage,
+cl.percentage / 100 AS real_perc,
+cl.countrycode,
+c.population,
+c.name
+
+FROM
+countrylanguage cl JOIN country c ON cl.countrycode = c.code
+ORDER BY
+cl.percentage DESC
+)
+SELECT 
+population*real_perc AS perc_of_pop,
+name
+FROM
+per_country
+WHERE
+real_perc != 0
+ORDER BY
+perc_of_pop DESC
+
+
+
+
+
+
+
+SELECT
+cl.language,
+sum(cc.population) AS sum_of_lang
+FROM
+country c JOIN city cc ON (c.code = cc.countrycode) 
+JOIN countrylanguage cl ON (c.code = cl.countrycode)
+WHERE
+language = 'English'
+AND
+isofficial = 'true'
+GROUP BY cl.language
